@@ -1,64 +1,55 @@
 <?php
 include "conexao.php";
-
-$sql = "SELECT 
-            funcionarios.Nome AS Funcionario, 
-            funcionarios.Email, 
-            funcionarios.Ramal, 
-            funcionarios.Salario, 
-            cargos.Nome AS Cargo, 
-            setor.Nome AS Setor 
-        FROM funcionarios 
-        INNER JOIN cargos ON funcionarios.CargoID = cargos.CargoID 
-        INNER JOIN setor ON funcionarios.SetorID = setor.SetorID 
+ 
+$sql = "SELECT
+            funcionarios.Nome AS Funcionario,
+            funcionarios.Email,
+            funcionarios.Ramal,
+            funcionarios.Salario,
+            cargos.Nome AS Cargo,
+            setor.Nome AS Setor
+        FROM funcionarios
+        LEFT JOIN cargos ON funcionarios.CargoID = cargos.CargoID
+        LEFT JOIN setor ON funcionarios.SetorID = setor.SetorID
         ORDER BY funcionarios.Nome ASC";
-
+ 
 $resultado = mysqli_query($conexao, $sql);
+ 
+include "componentes/header.php";
 ?>
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Funcionários</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
-    <?php include "componentes/header.php"; ?>
-
-    <main class="container">
-        <section class="titulo-pagina">
-            <h1>Funcionários</h1>
-        </section>
-        
-        <div class="tabela-container">
-            <table class="tabela-dados">
-                <thead>
+ 
+<main class="container">
+    <section class="titulo-pagina">
+        <h1>Funcionários</h1>
+        <p>Listagem completa combinando tabelas de cargos, setores e remunerações.</p>
+    </section>
+ 
+    <div class="tabela-container">
+        <table class="tabela-dados">
+            <thead>
+                <tr>
+                    <th>Funcionário</th>
+                    <th>E-mail</th>
+                    <th>Ramal</th>
+                    <th>Cargo</th>
+                    <th>Setor</th>
+                    <th>Salário</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while($funcionario = mysqli_fetch_assoc($resultado)) { ?>
                     <tr>
-                        <th>Funcionário</th>
-                        <th>E-mail</th>
-                        <th>Ramal</th>
-                        <th>Cargo</th>
-                        <th>Setor</th>
-                        <th>Salário</th>
+                        <td><strong><?php echo htmlspecialchars($funcionario["Funcionario"]); ?></strong></td>
+                        <td><?php echo htmlspecialchars($funcionario["Email"]); ?></td>
+                        <td><?php echo htmlspecialchars($funcionario["Ramal"]); ?></td>
+                        <td><span class="badge-cargo"><?php echo htmlspecialchars($funcionario["Cargo"] ?? 'Não definido'); ?></span></td>
+                        <td><?php echo htmlspecialchars($funcionario["Setor"] ?? 'Não definido'); ?></td>
+                        <td class="valor-destaque">R$ <?php echo number_format($funcionario["Salario"], 2, ",", "."); ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php while ($funcionario = mysqli_fetch_assoc($resultado)) { ?>
-                        <tr>
-                            <td><?php echo $funcionario["Funcionario"]; ?></td>
-                            <td><?php echo $funcionario["Email"]; ?></td>
-                            <td><?php echo $funcionario["Ramal"]; ?></td>
-                            <td><?php echo $funcionario["Cargo"]; ?></td>
-                            <td><?php echo $funcionario["Setor"]; ?></td>
-                            <td>R$ <?php echo number_format($funcionario["Salario"], 2, ",", "."); ?></td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
-    </main>
-
-    <?php include "componentes/footer.php"; ?>
-</body>
-</html>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</main>
+ 
+<?php include "componentes/footer.php"; ?>
